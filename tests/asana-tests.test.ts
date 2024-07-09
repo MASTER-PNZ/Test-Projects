@@ -1,11 +1,11 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { Config } from '@playwright/test';
 
 const loginTD = {
-    "email": "ben+pose@workwithloop.com",
-    "password": "Password123"
+  "email": "ben+pose@workwithloop.com",
+  "password": "Password123"
 };
+
 const testCases = [
   {
     "id": 1,
@@ -51,9 +51,9 @@ const testCases = [
   }
 ];
 
-
 test.describe('Asana Data-Driven Tests', () => {
-    // loops through each Test Case object 
+
+  // loops through each Test Case object 
   testCases.forEach((data) => {
 
     test(`Asana ${data.name}`, async ({ page }) => {
@@ -65,28 +65,24 @@ test.describe('Asana Data-Driven Tests', () => {
         await page.getByText('Continue', { exact: true }).click();
         const password = page.locator('[type="password"]');
         await password.fill(loginTD.password);
-        await page.getByRole('button', { name: 'Log in'}).click();
+        // To prevent Captcha and too many logins
+        await page.waitForTimeout(1000);
+        await page.getByRole('button', { name: 'Log in' }).click();
       });
 
       await test.step('Navigate to the project page', async () => {
         // Navigate to the project 
-        const leftNavItem = page.getByText(`${data.leftNav}`);
+        const leftNavItem = page.getByRole('link', { name: `${data.leftNav}` });
         await leftNavItem.click();
       });
 
       await test.step('Verify the card is within the right column', async () => {
-        // Verify the card is within the right column
+        // Verify the card is within the correct column
         await page.getByText(`${data.card_title}`).first().click();
         const columnTitle = page.getByText(`${data.column}`);
         await expect(columnTitle).toContainText(`${data.column}`);
 
-
-        // const column = page.getByText(`${data.column}`);
-        // await column.getByText(`${data.card_title}`);
-
       });
-      
     });
   });
 });
-
